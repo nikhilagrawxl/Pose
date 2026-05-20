@@ -22,8 +22,8 @@ db = client[os.environ['DB_NAME']]
 # Create the main app without a prefix
 app = FastAPI()
 
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
+# Create a base router without a prefix
+base_router = APIRouter()
 
 
 # Define Models
@@ -59,11 +59,11 @@ class StatusCheckCreate(BaseModel):
     client_name: str
 
 # Add your routes to the router instead of directly to app
-@api_router.get("/")
+@base_router.get("/")
 async def root():
     return {"message": "PosePerfect AI API"}
 
-@api_router.get("/poses", response_model=List[TrendingPose])
+@base_router.get("/poses", response_model=List[TrendingPose])
 async def get_trending_poses(mood: Optional[str] = None, scene: Optional[str] = None):
     query = {}
     if mood:
@@ -74,7 +74,7 @@ async def get_trending_poses(mood: Optional[str] = None, scene: Optional[str] = 
     poses = await db.trending_poses.find(query, {"_id": 0}).to_list(50)
     return poses
 
-@api_router.get("/poses/{pose_id}", response_model=TrendingPose)
+@base_router.get("/poses/{pose_id}", response_model=TrendingPose)
 async def get_pose_by_id(pose_id: str):
     from fastapi import HTTPException
     pose = await db.trending_poses.find_one({"id": pose_id}, {"_id": 0})
@@ -82,7 +82,7 @@ async def get_pose_by_id(pose_id: str):
         return pose
     raise HTTPException(status_code=404, detail=f"Pose with id '{pose_id}' not found")
 
-@api_router.post("/status", response_model=StatusCheck)
+@base_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.model_dump()
     status_obj = StatusCheck(**status_dict)
@@ -93,7 +93,7 @@ async def create_status_check(input: StatusCheckCreate):
     _ = await db.status_checks.insert_one(doc)
     return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
+@base_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
     status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
     
@@ -103,8 +103,9 @@ async def get_status_checks():
     
     return status_checks
 
-# Include the router in the main app
-app.include_router(api_router)
+# Include the base router in the main app under both /api and root /
+app.include_router(base_router, prefix="/api")
+app.include_router(base_router)
 
 app.add_middleware(
     CORSMiddleware,
