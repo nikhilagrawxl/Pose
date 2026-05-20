@@ -76,10 +76,11 @@ async def get_trending_poses(mood: Optional[str] = None, scene: Optional[str] = 
 
 @api_router.get("/poses/{pose_id}", response_model=TrendingPose)
 async def get_pose_by_id(pose_id: str):
+    from fastapi import HTTPException
     pose = await db.trending_poses.find_one({"id": pose_id}, {"_id": 0})
     if pose:
         return pose
-    return {"id": pose_id, "name": "Not found", "mood_pack": "", "scene_type": "", "landmarks": []}
+    raise HTTPException(status_code=404, detail=f"Pose with id '{pose_id}' not found")
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
