@@ -266,10 +266,11 @@ const PoseDirector = () => {
       <AnimatePresence>
         {error && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            data-testid="error-toast"
+            initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 backdrop-blur-2xl bg-red-500/20 border border-red-500/30 rounded-2xl px-6 py-3 text-white shadow-2xl"
+            exit={{ opacity: 0, y: -50 }}
+            className="absolute top-6 left-1/2 transform -translate-x-1/2 backdrop-blur-2xl bg-red-500/20 border border-red-500/30 rounded-2xl px-6 py-3 text-white shadow-2xl z-50"
           >
             <div className="text-sm font-medium">
               Error: {error.message || "Camera access denied"}
