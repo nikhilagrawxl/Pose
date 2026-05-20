@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { usePoseDetection } from "../hooks/usePoseDetection";
@@ -35,11 +35,7 @@ const PoseDirector = () => {
   const [dimensions, setDimensions] = useState({ width: 1280, height: 720 });
   const [loadingPoses, setLoadingPoses] = useState(false);
 
-  useEffect(() => {
-    fetchTrendingPoses();
-  }, [selectedMood, selectedScene]);
-
-  const fetchTrendingPoses = async () => {
+  const fetchTrendingPoses = useCallback(async () => {
     setLoadingPoses(true);
     try {
       const response = await axios.get(`${API}/poses`, {
@@ -55,7 +51,11 @@ const PoseDirector = () => {
     } finally {
       setLoadingPoses(false);
     }
-  };
+  }, [selectedMood, selectedScene]);
+
+  useEffect(() => {
+    fetchTrendingPoses();
+  }, [fetchTrendingPoses]);
 
   const handleCameraToggle = () => {
     if (cameraActive) {

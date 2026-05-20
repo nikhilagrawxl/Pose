@@ -51,6 +51,14 @@ let webpackConfig = {
         ],
       };
 
+      // Suppress critical dependency expression warnings (commonly from @mediapipe or other WASM packages)
+      webpackConfig.ignoreWarnings = [
+        ...(webpackConfig.ignoreWarnings || []),
+        {
+          message: /Critical dependency: the request of a dependency is an expression/,
+        },
+      ];
+
       // Add health check plugin to webpack if enabled
       if (config.enableHealthCheck && healthPluginInstance) {
         webpackConfig.plugins.push(healthPluginInstance);
