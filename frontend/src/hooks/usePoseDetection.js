@@ -61,7 +61,7 @@ export const usePoseDetection = () => {
     const canvas = canvasRef.current;
     const landmarker = poseLandmarkerRef.current;
 
-    if (!video || !canvas || !landmarker || !cameraActive) {
+    if (!video || !landmarker || !cameraActive) {
       return;
     }
 
@@ -70,7 +70,7 @@ export const usePoseDetection = () => {
       return;
     }
 
-    if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+    if (canvas && (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight)) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
     }
